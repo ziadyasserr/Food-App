@@ -1,30 +1,34 @@
 // import React from 'react'
 
 import axios from 'axios';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { USERS_URLS } from '../../../../services/urls/urls';
 
 export default function Resetpass() {
-  let navigate = useNavigate()
+  const location = useLocation();
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
+    useState(false);
+
+  let navigate = useNavigate();
   let {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm();
+    formState: { errors, isSubmitting },
+  } = useForm({ defaultValues: { email: location.state } });
 
   let onSubmit = async (data) => {
     try {
-      let response = await axios.post(
-        'https://upskilling-egypt.com:3006/api/v1/Users/Reset',
-        data,
-      );
+      let response = await axios.post(USERS_URLS.RESET, data);
       console.log(response);
-      toast.success(response.data.message)
-      navigate("/login")
+      toast.success(response.data.message || 'Reset Password Success');
+      navigate('/login');
     } catch (error) {
       // console.log(error);
-      toast.error(error.response.data.message)
+      toast.error(error.response.data.message || 'Some Thing Is Wrong');
     }
   };
   return (
@@ -43,14 +47,14 @@ export default function Resetpass() {
                 <i className="fa-solid fa-envelope"></i>
               </span>
               <input
+                disabled={true}
                 type="email"
                 className="form-control no-outline"
-                placeholder="Email"
-                aria-label="Email"
+                placeholder="email"
+                aria-label="e mail"
                 aria-describedby="basic-addon1"
-                autoComplete="email"  
-
-                {...register('email', { required: 'Email is required' })}
+                autoComplete="email"
+                {...register('email')}
               />
             </div>
             {errors.email && (
@@ -87,16 +91,30 @@ export default function Resetpass() {
                 <i className="fa-solid fa-lock"></i>
               </span>
               <input
-                type="password"
+                type={isPasswordVisible ? 'text' : 'password'}
                 className="form-control no-outline"
                 placeholder="New Password"
                 aria-label="number"
                 aria-describedby="basic-addon1"
-                autoComplete="new-password"  
+                autoComplete="new-password"
                 {...register('password', {
                   required: ' password is required',
                 })}
               />
+              <button
+                className="input-group-text"
+                id="basic-addon1"
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onMouseUp={(e) => e.preventDefault()}
+                onClick={() => setIsPasswordVisible((prev) => !prev)}
+              >
+                {isPasswordVisible ? (
+                  <i className="fa-solid fa-eye"></i>
+                ) : (
+                  <i className="fa-solid fa-eye-slash"></i>
+                )}
+              </button>
             </div>
             {errors.password && (
               <span className="text-danger">{errors.password.message}</span>
@@ -108,17 +126,32 @@ export default function Resetpass() {
                 <i className="fa-solid fa-lock"></i>
               </span>
               <input
-                type="password"
+                type={isConfirmPasswordVisible ? 'text' : 'password'}
                 className="form-control no-outline"
                 placeholder="Confirm New Password"
                 aria-label="number"
                 aria-describedby="basic-addon1"
-                autoComplete="new-password"  
-
+                autoComplete="new-password"
                 {...register('confirmPassword', {
                   required: 'Please confirm your password',
                 })}
               />
+              <button
+                className="input-group-text"
+                id="basic-addon1"
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onMouseUp={(e) => e.preventDefault()}
+                onClick={() =>
+                  setIsConfirmPasswordVisible(!isConfirmPasswordVisible)
+                }
+              >
+                {isConfirmPasswordVisible ? (
+                  <i className="fa-solid fa-eye"></i>
+                ) : (
+                  <i className="fa-solid fa-eye-slash"></i>
+                )}
+              </button>
             </div>
             {errors.confirmPassword && (
               <span className="text-danger">
@@ -128,8 +161,11 @@ export default function Resetpass() {
           </div>
 
           <div className="btn-login ">
-            <button className="btn btn-success w-100  fw-bold ">
-              Reset Password
+            <button
+              className="btn btn-success w-100  fw-bold "
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Reseting Password ...' : 'Reset Password'}
             </button>
           </div>
         </form>

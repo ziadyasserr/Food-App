@@ -1,32 +1,37 @@
 // import React from 'react'
 import { useForm } from 'react-hook-form';
 
-import axios from 'axios';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { axiosInstance, USERS_URLS } from '../../../../services/urls/urls';
+import {
+  EMAIL_VALIDATION,
+  PASSWORD_VALIDATION,
+} from '../../../../services/validation/validation';
 
-export default function Login() {
+export default function Login({ saveLoginData }) {
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   let navigate = useNavigate();
   let {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { isSubmitting, errors },
   } = useForm();
 
   let onSumbit = async (data) => {
     try {
-      let response = await axios.post(
-        'https://upskilling-egypt.com:3006/api/v1/Users/Login',
-        data,
-      );
-      console.log(response);
-      toast.success('login success');
-      navigate('/dashboard');
+      let response = await axiosInstance.post(USERS_URLS.LOGIN, data);
+      localStorage.setItem('token', response.data.token);
+      saveLoginData();
+      toast.success('Login Success');
+      navigate('/dashboard', { replace: true });
     } catch (error) {
       // console.log(error);
-      toast.error(error.response.data.message);
+      toast.error(error.response.data.message ||"Login Failed");
     }
   };
+
   return (
     <>
       <div>
@@ -49,13 +54,7 @@ export default function Login() {
                 placeholder="Enter your E-mail"
                 aria-label="Email"
                 aria-describedby="basic-addon1"
-                {...register('email', {
-                  required: 'Email is required',
-                  pattern: {
-                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                    message: 'Invalid email format',
-                  },
-                })}
+                {...register('email', EMAIL_VALIDATION)}
               />
             </div>
             {errors.email && (
@@ -67,15 +66,27 @@ export default function Login() {
               <i className="fa-solid fa-lock"></i>
             </span>
             <input
-              type="text"
+              type={isPasswordVisible ? 'text' : 'password'}
               className="form-control no-outline"
               placeholder="Password"
               aria-label="Password"
               aria-describedby="basic-addon1"
-              {...register('password', {
-                required: 'password is required',
-              })}
+              {...register('password', PASSWORD_VALIDATION)}
             />
+            <button
+              className="input-group-text"
+              id="basic-addon1"
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onMouseUp={(e) => e.preventDefault()}
+              onClick={() => setIsPasswordVisible((prev) => !prev)}
+            >
+              {isPasswordVisible ? (
+                <i className="fa-solid fa-eye"></i>
+              ) : (
+                <i className="fa-solid fa-eye-slash"></i>
+              )}
+            </button>
           </div>
           {errors.password && (
             <span className="text-danger">{errors.password.message}</span>
@@ -93,7 +104,12 @@ export default function Login() {
             </Link>
           </div>
           <div className="btn-login ">
-            <button className="btn btn-success w-100  fw-bold">Login</button>
+            <button
+              disabled={isSubmitting}
+              className="btn btn-success w-100  fw-bold"
+            >
+              {isSubmitting ? `logining ...` : `login`}
+            </button>
           </div>
         </form>
       </div>

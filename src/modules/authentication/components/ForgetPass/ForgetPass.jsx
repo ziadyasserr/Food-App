@@ -9,7 +9,7 @@ export default function ForgetPass() {
   let {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm();
 
   const onSubmit = async (data) => {
@@ -19,11 +19,10 @@ export default function ForgetPass() {
         data,
       );
       // console.log(response);
-      toast.success(response.data.message)
-      navigate("/reset-password")
-
+      toast.success(response?.data?.message || 'otp sent in your email');
+      navigate('/reset-password', { state: data.email });
     } catch (error) {
-      toast.error(error.response.data.message)
+      toast.error(error.response.data.message || "Some Thing Is Wrong");
     }
   };
   return (
@@ -54,7 +53,13 @@ export default function ForgetPass() {
             <span className="text-danger ">{errors.email.message}</span>
           )}
           <div className="btn-login mt-5">
-            <button className="btn btn-success w-100  fw-bold ">Sumbit</button>
+            <button
+              className="btn btn-success w-100  fw-bold "
+              disabled={isSubmitting}
+            >
+             
+            {isSubmitting ? "Submiting ... " : "Submit" }
+            </button>
           </div>
         </form>
       </div>
