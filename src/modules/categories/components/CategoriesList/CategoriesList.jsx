@@ -1,23 +1,69 @@
 // import React from 'react'
 
 import { useEffect, useState } from 'react';
-import Modal from 'react-bootstrap/Modal';
 import { toast } from 'react-toastify';
 // import headerImg from '../../../../assets/images/header.png';
-import nodata from '../../../../assets/images/nodata.png';
+import Modal from 'react-bootstrap/Modal';
+import { useForm } from 'react-hook-form';
 import { axiosInstance, CATEGORY_URLS } from '../../../../services/urls/urls';
+import { GetRequiredMessage } from '../../../../services/validation/validation';
+import DeleteConfirmation from '../../../shared/components/DeleteConfirmation/DeleteConfirmation';
 import Header from '../../../shared/components/Header/Header';
+import NoData from '../../../shared/components/NoData/NoData';
 
 export default function CategoriesList() {
+  const [categoriesList, setCategoriesList] = useState([]);
   const [categoryId, setCategoryId] = useState(null);
-  const [show, setShow] = useState(false);
+  const [categoryUpdateId, setCategoryUpdateId] = useState(null);
+  let {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm();
 
-  const handleClose = () => setShow(false);
+  ////////////////// Delete confirmation modal //////////////////////////
+  const [showDelete, setShowDelete] = useState(false);
+  const handleClose = () => setShowDelete(false);
   const handleShow = (id) => {
     setCategoryId(id);
-    setShow(true);
+    setShowDelete(true);
   };
-  const [categoriesList, setCategoriesList] = useState([]);
+  let deleteCatagory = async () => {
+    try {
+      await axiosInstance.delete(
+        CATEGORY_URLS.DELETE_CATEGORY(categoryId),
+        // `${CATEGORY_URLS.DELETE_CATEGORY}/${categoryId}`,
+      );
+      toast.success('delete success');
+      getCategories();
+    } catch (error) {
+      console.log(error);
+      toast.error('delete failed');
+    }
+    handleClose();
+  };
+
+  ///////////////// Add/Update confirmation modal ////////////////////////
+  const [showModal, setShowModal] = useState(false);
+  const [isUpdateModal, setIsUpdateModal] = useState(false);
+  const handleCloseModal = () => {
+    setShowModal(false);
+    reset();
+  };
+  const handleShowModal = (category) => {
+    if (category) {
+      setCategoryUpdateId(category.id);
+      setIsUpdateModal(true);
+      setValue('name', category.name);
+    } else {
+      setIsUpdateModal(false);
+    }
+    setShowModal(true);
+  };
+  
+  ///////////////// get Categories ////////////////////////
   let getCategories = async () => {
     try {
       let response = await axiosInstance.get(CATEGORY_URLS.GET_CATEGORIES, {
@@ -30,27 +76,86 @@ export default function CategoriesList() {
     }
   };
 
-  let deleteCatagory = async () => {
-    try {
-      await axiosInstance.delete(
-        CATEGORY_URLS.DELETE_CATEGORY(categoryId),
-        // `${CATEGORY_URLS.DELETE_CATEGORY}/${categoryId}`,
-      );
-      toast.success('delete success');
-      getCategories();
-    } catch (error) {
-      console.log(error);
-      toast.error('delete faild');
-    }
-    handleClose();
-  };
-
   useEffect(() => {
     getCategories();
   }, []);
 
+
+  let onSubmit = async (data) => {
+    try {
+      if (isUpdateModal) {
+        await axiosInstance.put(
+          CATEGORY_URLS.UPDATE_CATEGORY(categoryUpdateId),
+          data,
+        );
+        toast.success('Category updated successfully');
+      } else {
+        await axiosInstance.post(CATEGORY_URLS.POST_CATEGORY, data);
+        toast.success('Category Added successfully');
+        // reset(); // Clear form inputs
+      }
+      getCategories();
+    } catch (error) {
+      console.log(error);
+      toast.error('Add Category Failed');
+    }
+    handleCloseModal();
+  };
+
   return (
     <>
+      {/* /////////////// Add/Update confirmation modal ////////////////// */}
+      <Modal show={showModal} onHide={handleCloseModal}>
+
+        <Modal.Header closeButton className='border-bottom '>
+          <span className="fw-bold fs-4">
+            {isUpdateModal ? 'Update Category' : 'Add Category'}
+          </span>
+        </Modal.Header>
+        
+        <Modal.Body>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="my-3 p-1">
+              <div className="input-group ">
+                <input
+                  type="text"
+                  className="form-control no-outline"
+                  placeholder="Category Name"
+                  aria-label="name"
+                  aria-describedby="basic-addon1"
+                  {...register('name', {
+                    required: GetRequiredMessage('Category'),
+                  })}
+                />
+              </div>
+              {errors.name && (
+                <span className="text-danger ">{errors.name.message}</span>
+              )}
+            </div>
+
+            <div className=" text-end ">
+              <button
+                className="btn btn-success  mt-3 fw-bold text-end px-5 py-2"
+                disabled={isSubmitting}
+              >
+                {isSubmitting
+                  ? isUpdateModal
+                    ? 'Updateing ...'
+                    : 'Adding ...'
+                  : 'Save'}
+              </button>
+            </div>
+          </form>
+        </Modal.Body>
+      </Modal>
+
+      <DeleteConfirmation
+        deleteItem={'Catagory'}
+        deleteFun={deleteCatagory}
+        show={showDelete}
+        handleClose={handleClose}
+      />
+
       <div>
         <Header
           title={'categories item'}
@@ -59,6 +164,7 @@ export default function CategoriesList() {
           }
         />
       </div>
+
       <div className="d-flex justify-content-between align-items-center my-4">
         <div>
           <span className="fw-semibold d-block fs-5 ">
@@ -69,72 +175,59 @@ export default function CategoriesList() {
           </span>
         </div>
         <div>
-          <button className="btn btn-success px-4">Add New Category</button>
+          <button
+            className="btn btn-success px-4"
+            onClick={() => handleShowModal()}
+          >
+            Add New Category
+          </button>
         </div>
       </div>
 
       <div>
-        <Modal show={show} onHide={handleClose}>
-          <Modal.Header closeButton></Modal.Header>
-          <Modal.Body className="text-center">
-            <img src={nodata} alt="nodata" className="img-fluid" />
-            <h4>Delete This Item ?</h4>
-            <span className="d-block text-muted">
-              are you sure you want to delete this item ? if you are sure just
-              click on delete it
-            </span>
-          </Modal.Body>
-          <Modal.Footer>
-            <button
-              className=" text-capitalize border-danger text-danger bg-white fw-bold p-2 rounded-3"
-              onClick={deleteCatagory}
-            >
-              delete this item
-            </button>
-          </Modal.Footer>
-        </Modal>
-      </div>
-
-      <div>
-        <table className="table rounded-3 overflow-hidden ">
-          <thead className="table-secondary  rounded-2 overflow-hidden">
-            <tr>
-              <th scope="col  " className="py-4 border-0  fs-5">
-                Name
-              </th>
-              <th scope="col " className="py-4 border-0  fs-5">
-                creationDate
-              </th>
-              <th scope="col " className="py-4 border-0  fs-5">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {categoriesList.map((category, index) => (
-              <tr key={index}>
-                <td>{category.name}</td>
-                <td>{category.creationDate || "From Close"}</td>
-
-                <td className="">
-                  <button
-                    className=" text-success bg-white border-0"
-                    onClick={() => handleShow(category.id)}
-                  >
-                    <i className="fa-solid fa-trash "></i>
-                  </button>
-                  <button className=" text-success bg-white border-0">
-                    <i className="fa-solid fa-pen-to-square"></i>
-                  </button>
-                </td>
+        {categoriesList.length > 0 ? (
+          <table className="table rounded-3 overflow-hidden ">
+            <thead className="table-secondary  rounded-2 overflow-hidden">
+              <tr>
+                <th scope="col  " className="py-4 border-0  fs-5">
+                  Name
+                </th>
+                <th scope="col " className="py-4 border-0  fs-5">
+                  creationDate
+                </th>
+                <th scope="col " className="py-4 border-0  fs-5">
+                  Action
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {categoriesList.map((category, index) => (
+                <tr key={index}>
+                  <td>{category.name}</td>
+                  <td>{category.creationDate || 'From Close'}</td>
+
+                  <td className="">
+                    <button
+                      className=" text-success bg-white border-0"
+                      onClick={() => handleShow(category.id)}
+                    >
+                      <i className="fa-solid fa-trash "></i>
+                    </button>
+                    <button
+                      className=" text-success bg-white border-0"
+                      onClick={() => handleShowModal(category)}
+                    >
+                      <i className="fa-solid fa-pen-to-square"></i>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <NoData />
+        )}
       </div>
     </>
   );
 }
-
-
-

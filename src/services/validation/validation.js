@@ -8,3 +8,5 @@ export const EMAIL_VALIDATION = {
 export const PASSWORD_VALIDATION = {
   required: 'password is required',
 };
+export const GetRequiredMessage = (fieldName) => `${fieldName} is required`;
+

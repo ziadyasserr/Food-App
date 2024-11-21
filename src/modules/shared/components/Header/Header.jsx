@@ -13,7 +13,6 @@ export default function Header({ title, description }) {
         <span className="d-block">{description}</span>
       </div>
       <div>
-        {/* <img src={img} alt="header-img" /> */}
         <img
           src={location.pathname === '/dashboard' ? headerwoman : headerman}
           alt=""
