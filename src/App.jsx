@@ -10,7 +10,7 @@ import ForgetPass from './modules/authentication/components/ForgetPass/ForgetPas
 import Login from './modules/authentication/components/Login/Login';
 import Register from './modules/authentication/components/Register/Register';
 import Resetpass from './modules/authentication/components/Resetpass/Resetpass';
-import ChangePass from './modules/authentication/components/changePass/ChangePass';
+import ChangePass from './modules/authentication/components/ChangePass/ChangePass';
 import CategorieData from './modules/categories/components/CategorieData/CategorieData';
 import CategoriesList from './modules/categories/components/CategoriesList/CategoriesList';
 import Dashboard from './modules/dashboard/components/Dashboard/Dashboard';
