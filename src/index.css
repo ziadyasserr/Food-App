@@ -98,3 +98,9 @@
 }
 
 /* search input */
+
+/* Hide the default file input button */
+.custom-file-input {
+  display: none;
+}
+

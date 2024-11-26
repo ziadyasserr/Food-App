@@ -24,7 +24,19 @@ export default function Register() {
 
   let onSumbit = async (data) => {
     try {
-      let response = await axiosInstance.post(USERS_URLS.REGISTER, data);
+      const formData = new FormData();
+      formData.append('userName', data.userName);
+      formData.append('email', data.email);
+      formData.append('country', data.country);
+      formData.append('phoneNumber', data.phoneNumber);
+      formData.append('password', data.password);
+      formData.append('confirmPassword', data.confirmPassword);
+
+      if (data.profileImage && data.profileImage[0]) {
+        formData.append('profileImage', data.profileImage[0]);
+      }
+
+      let response = await axiosInstance.post(USERS_URLS.REGISTER, formData);
       console.log(response);
 
       toast.success(response?.data?.message || 'sucessfully...Need to verify');
@@ -205,6 +217,16 @@ export default function Register() {
                 {errors.confirmPassword.message}
               </span>
             )}
+          </div>
+
+          <div className="mb-4 col-12 ">
+            <div className="input-group ">
+              <input
+                type="file"
+                className="form-control no-outline"
+                {...register('profileImage')}
+              />
+            </div>
           </div>
 
           <div className="btn-login ">
