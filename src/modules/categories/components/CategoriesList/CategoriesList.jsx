@@ -14,7 +14,6 @@ import NoData from '../../../shared/components/NoData/NoData';
 export default function CategoriesList() {
   const [categoriesList, setCategoriesList] = useState([]);
   const [categoryId, setCategoryId] = useState(null);
-  const [categoryUpdateId, setCategoryUpdateId] = useState(null);
   let {
     register,
     handleSubmit,
@@ -46,6 +45,7 @@ export default function CategoriesList() {
   };
 
   ///////////////// Add/Update confirmation modal ////////////////////////
+  const [categoryUpdateId, setCategoryUpdateId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [isUpdateModal, setIsUpdateModal] = useState(false);
   const handleCloseModal = () => {
@@ -62,7 +62,7 @@ export default function CategoriesList() {
     }
     setShowModal(true);
   };
-  
+
   ///////////////// get Categories ////////////////////////
   let getCategories = async () => {
     try {
@@ -79,7 +79,6 @@ export default function CategoriesList() {
   useEffect(() => {
     getCategories();
   }, []);
-
 
   let onSubmit = async (data) => {
     try {
@@ -99,20 +98,19 @@ export default function CategoriesList() {
       console.log(error);
       toast.error('Add Category Failed');
     }
-    handleCloseModal();
+    handleCloseModal(); 
   };
 
   return (
     <>
       {/* /////////////// Add/Update confirmation modal ////////////////// */}
       <Modal show={showModal} onHide={handleCloseModal}>
-
-        <Modal.Header closeButton className='border-bottom '>
+        <Modal.Header closeButton className="border-bottom ">
           <span className="fw-bold fs-4">
             {isUpdateModal ? 'Update Category' : 'Add Category'}
           </span>
         </Modal.Header>
-        
+
         <Modal.Body>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="my-3 p-1">

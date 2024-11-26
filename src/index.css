@@ -34,7 +34,7 @@
   background-color: rgba(0, 146, 77, 0.1) !important;
 }
 .sidebar-container .sidebar-logo:hover {
-  background-color: #1F263E !important;
+  background-color: #1f263e !important;
 }
 .sidebar-container .sidebar-logo {
   background-color: inherit !important;
@@ -70,3 +70,31 @@
 /* CATEGORY */
 
 
+/* HEADER_FORM */
+.header-form {
+  background-color: #f0ffef;
+  padding: 2.2rem 3.3rem;
+
+}
+.header-form .text-header{
+  max-width: 400px;
+}
+/* HEADER_FORM */
+
+
+/* search input */
+.form-control-with-icon {
+  position: relative;
+}
+.form-control-with-icon i {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  color: #6c757d;
+}
+.form-control-with-icon input {
+  padding-left: 35px;
+}
+
+/* search input */

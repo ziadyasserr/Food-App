@@ -15,13 +15,13 @@ export default function SideBar() {
     setIsCollapsed(!isCollapsed);
   };
   return (
-    <div className="sidebar-container top-0 position-sticky">
+    <div className="sidebar-container top-0 position-sticky align-self-start">
       <Sidebar className="vh-100 " collapsed={isCollapsed}>
         <Menu>
           <MenuItem
             onClick={toggleIsCollapsed}
             icon={<img src={logo} alt="logo" />}
-            component={<Link to="/dashboard" />}
+            // component={<Link to="/dashboard" />}
             className=" my-5 sidebar-logo  text-center"
           ></MenuItem>
 

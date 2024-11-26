@@ -1,18 +1,69 @@
 // import React from 'react'
 
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import defaultimg from '../../../../assets/images/header-man.png';
 import {
   axiosInstance,
+  CATEGORY_URLS,
   IMAGE_URL,
   RECIPE_URLS,
+  TAGS_URLS,
 } from '../../../../services/urls/urls';
 import DeleteConfirmation from '../../../shared/components/DeleteConfirmation/DeleteConfirmation';
 import Header from '../../../shared/components/Header/Header';
 import NoData from '../../../shared/components/NoData/NoData';
 
 export default function RecipesList() {
+  //search input
+  const [category, setCategory] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [nameValue, setNameValue] = useState('');
+  const [tagValue, setTagValue] = useState('');
+  const [categoryValue, setCategoryValue] = useState('');
+
+  useEffect(() => {
+    const getTags = async () => {
+      try {
+        let response = await axiosInstance.get(TAGS_URLS.GET_TAGS);
+        console.log(response);
+
+        setTags(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const getCategories = async () => {
+      try {
+        let response = await axiosInstance.get(CATEGORY_URLS.GET_CATEGORIES);
+        // console.log('cat', response.data.data);
+
+        setCategory(response.data.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getTags();
+    getCategories();
+  }, []);
+
+  let getNameValue = (input) => {
+    setNameValue(input.target.value);
+    getRecipes(1, 3, input.target.value, tagValue, categoryValue);
+  };
+  let getTagValue = (input) => {
+    setTagValue(input.target.value);
+    getRecipes(1, 3, nameValue, input.target.value, categoryValue);
+  };
+  let getCategoryValue = (input) => {
+    setCategoryValue(input.target.value);
+    getRecipes(1, 3, nameValue, tagValue, input.target.value);
+  };
+  //search input
+
   const [recipeId, setRecipeId] = useState(null);
 
   const [show, setShow] = useState(false);
@@ -23,14 +74,28 @@ export default function RecipesList() {
 
   const handleClose = () => setShow(false);
   const [recipesList, setRecipesList] = useState([]);
+  const [arrayOfPageNumber, setArrayOfPageNumber] = useState([]);
 
-  let getRecipes = async () => {
+  let getRecipes = async (pageNumber, pageSize, name, tagId, categoryId) => {
     try {
       let response = await axiosInstance.get(RECIPE_URLS.GET_RECIPES, {
-        params: { pageSize: 10, pageNumber: 1 },
+        params: {
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          name: name,
+          tagId: tagId,
+          categoryId: categoryId,
+        },
       });
+      // console.log('pageeeeeeeeeeeeee', response);
       console.log(response.data.data);
       setRecipesList(response.data.data);
+      setArrayOfPageNumber(
+        Array(response.data.totalNumberOfPages)
+          .fill()
+          .map((_, i) => i + 1), //(_)is a placeholder for the value of each element (not used here because all elements are undefined)//(i) is the index of the element.
+      );
+      // setArrayOfPageNumber(response.data.totalNumberOfPages);
     } catch (error) {
       console.log(error);
     }
@@ -52,7 +117,7 @@ export default function RecipesList() {
   };
 
   useEffect(() => {
-    getRecipes();
+    getRecipes(1, 3);
   }, []);
 
   return (
@@ -81,7 +146,48 @@ export default function RecipesList() {
           </span>
         </div>
         <div>
-          <button className="btn btn-success px-5">Add New Item</button>
+          <Link
+            to="/dashboard/recipes/new-recipe"
+            className="btn btn-success px-5"
+          >
+            Add New Item
+          </Link>
+        </div>
+      </div>
+
+      <div className="my-4">
+        <div className="row ">
+          <div className="col-12 col-md-8">
+            <div className="form-control-with-icon">
+              <i className="fas fa-search"></i>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search here..."
+                onChange={getNameValue}
+              />
+            </div>
+          </div>
+          <div className="col-6 col-md-2">
+            <select className="form-select" onChange={getTagValue}>
+              <option selected>Tag</option>
+              {tags.map(({ id, name }) => (
+                <option value={id} key={id}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-6 col-md-2">
+            <select className="form-select" onChange={getCategoryValue}>
+              <option selected>Category</option>
+              {category.map(({ id, name }) => (
+                <option value={id} key={id}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -144,9 +250,12 @@ export default function RecipesList() {
                     >
                       <i className="fa-solid fa-trash "></i>
                     </button>
-                    <button className=" text-success bg-white border-0">
+                    <Link
+                      to={`/dashboard/recipes/${recipe.id}`}
+                      className=" text-success bg-white border-0"
+                    >
                       <i className="fa-solid fa-pen-to-square"></i>
-                    </button>
+                    </Link>
                   </td>
                 </tr>
               ))}
@@ -155,6 +264,37 @@ export default function RecipesList() {
         ) : (
           <NoData />
         )}
+      </div>
+
+      <div>
+        <nav aria-label="Page navigation example">
+          <ul className="pagination">
+            <li className="page-item">
+              <a className="page-link" href="#" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+                <span className="sr-only">Previous</span>
+              </a>
+            </li>
+            {arrayOfPageNumber.map((pageNumberr) => (
+              <li
+                className="page-item"
+                key={pageNumberr}
+                onClick={() => getRecipes(pageNumberr, 3)}
+              >
+                <a className="page-link" href="#">
+                  {pageNumberr}
+                </a>
+              </li>
+            ))}
+
+            <li className="page-item">
+              <a className="page-link" href="#" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+                <span className="sr-only">Next</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </>
   );

@@ -13,6 +13,10 @@ export const USERS_URLS = {
   LOGIN: `/Users/Login`,
   RESET_REQUEST: `/Users/Reset/Request`,
   RESET: '/Users/Reset',
+  GET_USERS: `/Users/`,
+  REGISTER: `/Users/Register`,
+  VERIFY: `/Users/verify`,
+  DELETE_USER: (id) => `/Users/${id}`,
 };
 
 // CATEGORY_URLS
@@ -26,5 +30,12 @@ export const CATEGORY_URLS = {
 // RECIPES_URLS
 export const RECIPE_URLS = {
   GET_RECIPES: `/Recipe/`,
+  CREATE_RECIPES: `/Recipe/`,
+  GET_RECIPE: (recipeId) => `/Recipe/${recipeId}`,
   DELETE_RECIPE: (id) => `/Recipe/${id}`,
+  UPDATE_RECIPE: (id) => `/Recipe/${id}`,
+};
+// TAGS_URLS
+export const TAGS_URLS = {
+  GET_TAGS: `/tag/`,
 };
