@@ -1,8 +1,10 @@
 // import React from 'react'
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import defaultimg from '../../../../assets/images/header-man.png';
+import { AuthContext } from '../../../../context/AuthContext/AuthContext';
 import {
   axiosInstance,
   IMAGE_URL,
@@ -13,13 +15,51 @@ import Header from '../../../shared/components/Header/Header';
 import NoData from '../../../shared/components/NoData/NoData';
 
 export default function UsersList() {
+  const { loginData } = useContext(AuthContext);
+  let navigate = useNavigate();
+
   const [usersList, setUsersList] = useState([]);
   const [arrayOfPageNumber, setArrayOfPageNumber] = useState([]);
+  const [userNameValue, setUserNameValue] = useState('');
+  const [emailValue, setEmailValue] = useState('');
+  const [countryValue, setCountryValue] = useState('');
+  const [groupValue, setGroupValue] = useState('');
 
-  let getUsers = async (pageNumber, pageSize) => {
+  let getUsernameValue = (e) => {
+    getUsers(1, 40, e.target.value, emailValue, countryValue, groupValue);
+    setUserNameValue(e.target.value);
+  };
+  let getEmailValue = (e) => {
+    getUsers(1, 40, userNameValue, e.target.value, countryValue, groupValue);
+    setEmailValue(e.target.value);
+  };
+  let getCountryValue = (e) => {
+    getUsers(1, 40, userNameValue, emailValue, e.target.value, groupValue);
+    setCountryValue(e.target.value);
+  };
+  let getGroupValue = (e) => {
+    getUsers(1, 40, userNameValue, emailValue, countryValue, e.target.value);
+    setGroupValue(e.target.value);
+  };
+
+  let getUsers = async (
+    pageNumber,
+    pageSizee,
+    userName,
+    email,
+    country,
+    groups,
+  ) => {
     try {
       let response = await axiosInstance.get(USERS_URLS.GET_USERS, {
-        params: { pageSize: pageSize, pageNumber: pageNumber },
+        params: {
+          pageSize: pageSizee,
+          pageNumber: pageNumber,
+          userName: userName,
+          emaill: email,
+          country: country,
+          groups: groups,
+        },
       });
       console.log(response);
       setUsersList(response.data.data);
@@ -33,7 +73,10 @@ export default function UsersList() {
     }
   };
   useEffect(() => {
-    getUsers(1, 50);
+    if (loginData) {
+      if (loginData?.userGroup == 'SuperAdmin') getUsers(1, 40);
+      else navigate('/login');
+    }
   }, []);
 
   //delete confirmation
@@ -67,7 +110,8 @@ export default function UsersList() {
       />
       <div>
         <Header
-          title={'Users List '}
+          name={'Users'}
+          title={' List '}
           description={
             'You can now add your items that any user can order it from the Application and you can edit'
           }
@@ -76,11 +120,55 @@ export default function UsersList() {
       <div className=" my-4">
         <div>
           <span className="fw-semibold d-block fs-5 ">
-            Recipe Table Details
+            User Table Details
           </span>
           <span className="d-block text-black-50 fs-6">
             You can check all details
           </span>
+        </div>
+      </div>
+
+      <div className="row my-4">
+        <div className="col-12 col-md-3">
+          <div className="form-control-with-icon">
+            <i className="fas fa-search"></i>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Usename ..."
+              onChange={getUsernameValue}
+            />
+          </div>
+        </div>
+        <div className="col-12 col-md-3">
+          <div className="form-control-with-icon">
+            <i className="fas fa-search"></i>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Email ..."
+              onChange={getEmailValue}
+            />
+          </div>
+        </div>
+        <div className="col-12 col-md-3">
+          <div className="form-control-with-icon">
+            <i className="fas fa-search"></i>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Country ..."
+              onChange={getCountryValue}
+            />
+          </div>
+        </div>
+
+        <div className="col-6 col-md-3">
+          <select className="form-select" onChange={getGroupValue}>
+            <option defaultValue={' '}>group</option>
+            <option value={1}>Admin</option>
+            <option value={2}>User</option>
+          </select>
         </div>
       </div>
 

@@ -13,7 +13,7 @@ export default function AuthLayout() {
                 <div className="logo text-center ">
                   <img src={logo} alt="logo" className="w-75   " />
                 </div>
-                <Outlet /> 
+                <Outlet />
               </div>
             </div>
           </div>

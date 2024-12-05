@@ -1,12 +1,14 @@
 // import React from 'react'
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import defaultimg from '../../../../assets/images/header-man.png';
+import { AuthContext } from '../../../../context/AuthContext/AuthContext';
 import {
   axiosInstance,
   CATEGORY_URLS,
+  FAVORITES_URLS,
   IMAGE_URL,
   RECIPE_URLS,
   TAGS_URLS,
@@ -16,6 +18,8 @@ import Header from '../../../shared/components/Header/Header';
 import NoData from '../../../shared/components/NoData/NoData';
 
 export default function RecipesList() {
+  const { loginData } = useContext(AuthContext);
+
   //search input
   const [category, setCategory] = useState([]);
   const [tags, setTags] = useState([]);
@@ -50,17 +54,29 @@ export default function RecipesList() {
     getCategories();
   }, []);
 
+  const addToFavorites = async (id) => {
+    try {
+      let response = await axiosInstance.post(FAVORITES_URLS.ADD_TO_FAVORITES, {
+        recipeId: id,
+      });
+      console.log(response);
+      toast.success('Add To Favorites Successfully');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   let getNameValue = (input) => {
     setNameValue(input.target.value);
-    getRecipes(1, 3, input.target.value, tagValue, categoryValue);
+    getRecipes(1, 10, input.target.value, tagValue, categoryValue);
   };
   let getTagValue = (input) => {
     setTagValue(input.target.value);
-    getRecipes(1, 3, nameValue, input.target.value, categoryValue);
+    getRecipes(1, 10, nameValue, input.target.value, categoryValue);
   };
   let getCategoryValue = (input) => {
     setCategoryValue(input.target.value);
-    getRecipes(1, 3, nameValue, tagValue, input.target.value);
+    getRecipes(1, 10, nameValue, tagValue, input.target.value);
   };
   //search input
 
@@ -117,7 +133,7 @@ export default function RecipesList() {
   };
 
   useEffect(() => {
-    getRecipes(1, 3);
+    getRecipes(1, 10);
   }, []);
 
   return (
@@ -130,7 +146,8 @@ export default function RecipesList() {
       />
       <div>
         <Header
-          title={'Recipes Items'}
+          name={'Recipes'}
+          title={' Items'}
           description={
             'You can now add your items that any user can order it from the Application and you can edit'
           }
@@ -146,12 +163,16 @@ export default function RecipesList() {
           </span>
         </div>
         <div>
-          <Link
-            to="/dashboard/recipes/new-recipe"
-            className="btn btn-success px-5"
-          >
-            Add New Item
-          </Link>
+          {loginData?.userGroup == 'SuperAdmin' ? (
+            <Link
+              to="/dashboard/recipes/new-recipe"
+              className="btn btn-success px-5"
+            >
+              Add New Item
+            </Link>
+          ) : (
+            ''
+          )}
         </div>
       </div>
 
@@ -243,20 +264,31 @@ export default function RecipesList() {
                   <td>{recipe.description || 'It is Main dish'}</td>
                   <td>{recipe.tag?.name || 'NO Tag'}</td>
                   <td>{recipe.category?.[0]?.name || 'No category'}</td>
-                  <td>
-                    <button
-                      className=" text-success bg-white border-0"
-                      onClick={() => handleShow(recipe.id)}
-                    >
-                      <i className="fa-solid fa-trash "></i>
-                    </button>
-                    <Link
-                      to={`/dashboard/recipes/${recipe.id}`}
-                      className=" text-success bg-white border-0"
-                    >
-                      <i className="fa-solid fa-pen-to-square"></i>
-                    </Link>
-                  </td>
+                  {loginData?.userGroup == 'SuperAdmin' ? (
+                    <td>
+                      <button
+                        className=" text-success bg-white border-0"
+                        onClick={() => handleShow(recipe.id)}
+                      >
+                        <i className="fa-solid fa-trash "></i>
+                      </button>
+                      <Link
+                        to={`/dashboard/recipes/${recipe.id}`}
+                        className=" text-success bg-white border-0"
+                      >
+                        <i className="fa-solid fa-pen-to-square"></i>
+                      </Link>
+                    </td>
+                  ) : (
+                    <td>
+                      <button
+                        className=" text-success bg-white border-0"
+                        onClick={() => addToFavorites(recipe.id)}
+                      >
+                        <i className="fa-solid fa-heart"></i>
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -272,14 +304,14 @@ export default function RecipesList() {
             <li className="page-item">
               <a className="page-link" href="#" aria-label="Previous">
                 <span aria-hidden="true">&laquo;</span>
-                <span className="sr-only">Previous</span>
+                {/* <span className="sr-only">Previous</span> */}
               </a>
             </li>
             {arrayOfPageNumber.map((pageNumberr) => (
               <li
                 className="page-item"
                 key={pageNumberr}
-                onClick={() => getRecipes(pageNumberr, 3)}
+                onClick={() => getRecipes(pageNumberr, 10)}
               >
                 <a className="page-link" href="#">
                   {pageNumberr}
@@ -290,7 +322,7 @@ export default function RecipesList() {
             <li className="page-item">
               <a className="page-link" href="#" aria-label="Next">
                 <span aria-hidden="true">&raquo;</span>
-                <span className="sr-only">Next</span>
+                {/* <span className="sr-only">Next</span> */}
               </a>
             </li>
           </ul>

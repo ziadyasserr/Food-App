@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { USERS_URLS } from '../../../../services/urls/urls';
 
 export default function ForgetPass() {
   let navigate = useNavigate();
@@ -14,15 +15,12 @@ export default function ForgetPass() {
 
   const onSubmit = async (data) => {
     try {
-      let response = await axios.post(
-        'https://upskilling-egypt.com:3006/api/v1/Users/Reset/Request',
-        data,
-      );
+      let response = await axios.post(USERS_URLS.RESET_REQUEST, data);
       // console.log(response);
       toast.success(response?.data?.message || 'otp sent in your email');
       navigate('/reset-password', { state: data.email });
     } catch (error) {
-      toast.error(error.response.data.message || "Some Thing Is Wrong");
+      toast.error(error.response.data.message || 'Some Thing Is Wrong');
     }
   };
   return (
@@ -57,8 +55,7 @@ export default function ForgetPass() {
               className="btn btn-success w-100  fw-bold "
               disabled={isSubmitting}
             >
-             
-            {isSubmitting ? "Submiting ... " : "Submit" }
+              {isSubmitting ? 'Submiting ... ' : 'Submit'}
             </button>
           </div>
         </form>

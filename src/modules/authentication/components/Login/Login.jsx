@@ -1,7 +1,7 @@
 // import React from 'react'
 import { useForm } from 'react-hook-form';
 
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { axiosInstance, USERS_URLS } from '../../../../services/urls/urls';
@@ -9,8 +9,11 @@ import {
   EMAIL_VALIDATION,
   PASSWORD_VALIDATION,
 } from '../../../../services/validation/validation';
+import { AuthContext } from '../../../../context/AuthContext/AuthContext';
 
-export default function Login({ saveLoginData }) {
+export default function Login() {
+  const { saveLoginData } = useContext(AuthContext);
+
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   let navigate = useNavigate();
   let {
@@ -28,7 +31,7 @@ export default function Login({ saveLoginData }) {
       navigate('/dashboard', { replace: true });
     } catch (error) {
       // console.log(error);
-      toast.error(error.response.data.message ||"Login Failed");
+      toast.error(error.response.data.message || 'Login Failed');
     }
   };
 

@@ -1,10 +1,12 @@
 // import React from 'react'
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 // import headerImg from '../../../../assets/images/header.png';
 import Modal from 'react-bootstrap/Modal';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../../../context/AuthContext/AuthContext';
 import { axiosInstance, CATEGORY_URLS } from '../../../../services/urls/urls';
 import { GetRequiredMessage } from '../../../../services/validation/validation';
 import DeleteConfirmation from '../../../shared/components/DeleteConfirmation/DeleteConfirmation';
@@ -12,6 +14,9 @@ import Header from '../../../shared/components/Header/Header';
 import NoData from '../../../shared/components/NoData/NoData';
 
 export default function CategoriesList() {
+  const { loginData } = useContext(AuthContext);
+  let navigate = useNavigate();
+
   const [categoriesList, setCategoriesList] = useState([]);
   const [categoryId, setCategoryId] = useState(null);
   let {
@@ -80,6 +85,21 @@ export default function CategoriesList() {
     getCategories();
   }, []);
 
+  // useEffect(() => {
+  //   if (loginData?.userGroup == 'SuperAdmin') getCategories();
+  //   else navigate('/login');
+  // }, []);
+
+  useEffect(() => {
+    if (loginData) {
+      if (loginData.userGroup === 'SuperAdmin') {
+        getCategories();
+      } else {
+        navigate('/login');
+      }
+    }
+  }, [loginData]);
+
   let onSubmit = async (data) => {
     try {
       if (isUpdateModal) {
@@ -98,7 +118,7 @@ export default function CategoriesList() {
       console.log(error);
       toast.error('Add Category Failed');
     }
-    handleCloseModal(); 
+    handleCloseModal();
   };
 
   return (
@@ -156,7 +176,8 @@ export default function CategoriesList() {
 
       <div>
         <Header
-          title={'categories item'}
+          name={`Categories`}
+          title={' item'}
           description={
             'You can now add your items that any user can order it from the Application and you can edit'
           }

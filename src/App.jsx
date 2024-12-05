@@ -3,8 +3,6 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import './App.css';
 
-import { jwtDecode } from 'jwt-decode';
-import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import ChangePass from './modules/authentication/components/ChangePass/ChangePass';
 import ForgetPass from './modules/authentication/components/ForgetPass/ForgetPass';
@@ -12,9 +10,9 @@ import Login from './modules/authentication/components/Login/Login';
 import Register from './modules/authentication/components/Register/Register';
 import Resetpass from './modules/authentication/components/Resetpass/Resetpass';
 import Verify from './modules/authentication/components/Verify/Verify';
-import CategorieData from './modules/categories/components/CategorieData/CategorieData';
 import CategoriesList from './modules/categories/components/CategoriesList/CategoriesList';
 import Dashboard from './modules/dashboard/components/Dashboard/Dashboard';
+import Favorites from './modules/favorites/components/Favorites/Favorites';
 import RecipeForm from './modules/recipes/components/RecipeForm/RecipeForm';
 import RecipesList from './modules/recipes/components/RecipesList/RecipesList';
 import AuthLayout from './modules/shared/components/AuthLayout/AuthLayout';
@@ -24,27 +22,14 @@ import ProtectedRoute from './modules/shared/components/ProtectedRoute/Protected
 import UsersList from './modules/users/components/UsersList/UsersList';
 
 function App() {
-  const [loginData, setLoginData] = useState(null);
-  let saveLoginData = () => {
-    let encodeToken = localStorage.getItem('token');
-    let decodeToken = jwtDecode(encodeToken);
-    setLoginData(decodeToken);
-  };
-  useEffect(() => {
-    if (localStorage.getItem('token')) {
-      saveLoginData();
-      // console.log(loginData);
-    }
-  }, []);
-
   let routes = createBrowserRouter([
     {
       path: '/',
       element: <AuthLayout />,
       errorElement: <NotFound />,
       children: [
-        { index: true, element: <Login saveLoginData={saveLoginData} /> },
-        { path: 'login', element: <Login saveLoginData={saveLoginData} /> },
+        { index: true, element: <Login /> },
+        { path: 'login', element: <Login /> },
         { path: 'register', element: <Register /> },
         { path: 'verify', element: <Verify /> },
         { path: 'forget-password', element: <ForgetPass /> },
@@ -55,19 +40,19 @@ function App() {
     {
       path: 'dashboard',
       element: (
-        <ProtectedRoute loginData={loginData}>
-          <MasterLayout loginData={loginData} />
+        <ProtectedRoute>
+          <MasterLayout />
         </ProtectedRoute>
       ),
       errorElement: <NotFound />,
       children: [
-        { index: true, element: <Dashboard loginData={loginData} /> },
-        { path: 'dashboard', element: <Dashboard loginData={loginData} /> },
+        { index: true, element: <Dashboard /> },
+        { path: 'dashboard', element: <Dashboard /> },
         { path: 'recipes', element: <RecipesList /> },
+        { path: 'favorites', element: <Favorites /> },
         { path: 'recipes/new-recipe', element: <RecipeForm /> },
         { path: 'recipes/:recipeId', element: <RecipeForm /> },
         { path: 'categories', element: <CategoriesList /> },
-        { path: 'catagory-data', element: <CategorieData /> },
         { path: 'users', element: <UsersList /> },
       ],
     },

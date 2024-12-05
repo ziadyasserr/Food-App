@@ -1,6 +1,6 @@
 // import React from 'react'
 
-import { useEffect, useState } from 'react';
+import { Children, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaArrowRight } from 'react-icons/fa6';
 import { Link, useNavigate } from 'react-router-dom';
@@ -14,10 +14,12 @@ import {
 import { GetRequiredMessage } from '../../../../services/validation/validation';
 
 import { useParams } from 'react-router-dom';
+import { AuthContext } from '../../../../context/AuthContext/AuthContext';
 import beforeUnload from '../../../../hooks/beforeUnload';
 
 export default function RecipeForm() {
   beforeUnload();
+  const { loginData } = useContext(AuthContext);
 
   const params = useParams();
   let navigate = useNavigate();
@@ -34,6 +36,10 @@ export default function RecipeForm() {
   let isNewRecipe = params.recipeId;
 
   useEffect(() => {
+    if (loginData) {
+      if (loginData?.userGroup == 'SuperAdmin') Children;
+      else navigate('/login');
+    }
     const getTags = async () => {
       try {
         let response = await axiosInstance.get(TAGS_URLS.GET_TAGS);

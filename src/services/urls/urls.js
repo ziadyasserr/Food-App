@@ -16,6 +16,7 @@ export const USERS_URLS = {
   GET_USERS: `/Users/`,
   REGISTER: `/Users/Register`,
   VERIFY: `/Users/verify`,
+  CHANGE_PASSWORD: `/Users/ChangePassword`,
   DELETE_USER: (id) => `/Users/${id}`,
 };
 
@@ -34,6 +35,13 @@ export const RECIPE_URLS = {
   GET_RECIPE: (recipeId) => `/Recipe/${recipeId}`,
   DELETE_RECIPE: (id) => `/Recipe/${id}`,
   UPDATE_RECIPE: (id) => `/Recipe/${id}`,
+};
+// FAVORITES_URLS
+export const FAVORITES_URLS = {
+  GET_FAVORITES: `/userRecipe/`,
+  ADD_TO_FAVORITES: `/userRecipe/`,
+  DELETE_FAVORITES: (id) => `/userRecipe/${id}`,
+  
 };
 // TAGS_URLS
 export const TAGS_URLS = {
