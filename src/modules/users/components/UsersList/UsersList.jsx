@@ -119,9 +119,7 @@ export default function UsersList() {
       </div>
       <div className=" my-4">
         <div>
-          <span className="fw-semibold d-block fs-5 ">
-            User Table Details
-          </span>
+          <span className="fw-semibold d-block fs-5 ">User Table Details</span>
           <span className="d-block text-black-50 fs-6">
             You can check all details
           </span>

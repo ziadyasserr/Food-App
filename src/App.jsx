@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, createHashRouter, RouterProvider } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 
 import './App.css';
@@ -22,7 +22,7 @@ import ProtectedRoute from './modules/shared/components/ProtectedRoute/Protected
 import UsersList from './modules/users/components/UsersList/UsersList';
 
 function App() {
-  let routes = createBrowserRouter([
+  let routes = createHashRouter([
     {
       path: '/',
       element: <AuthLayout />,
