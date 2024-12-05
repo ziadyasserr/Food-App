@@ -229,9 +229,7 @@ export default function UsersList() {
                     >
                       <i className="fa-solid fa-trash "></i>
                     </button>
-                    <button className=" text-success bg-white border-0">
-                      <i className="fa fa-trash "></i>
-                    </button>
+                   
                   </td>
                 </tr>
               ))}

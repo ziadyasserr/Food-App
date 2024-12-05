@@ -26,6 +26,13 @@ export default function SideBar() {
     navigate('/login');
   };
 
+
+  // const [activeMenuItem, setActiveMenuItem] = useState(null);
+
+  // const handleMenuItemClick = (itemName) => {
+  //   setActiveMenuItem(itemName);
+  // };
+
   useEffect(() => {
     localStorage.setItem('saveCurrentState', isCollapsed);
   }, [isCollapsed]);
